@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片切换示例</title>
+    <style>
+         body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .upper-section, .lower-section {
+            border-radius: 10px; /* 圆角边框 */
+        }
+
+        .upper-section {
+            flex: 5;
+            position: relative;
+            background-color: #fff; /* 可以根据需要调整背景色 */
+        }
+
+        .lower-section {
+            flex: 1;
+            background-color: #f0f0f0;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 10px; /* 圆角边框 */
+        }
+
+        #image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px; /* 圆角边框 */
+        }
+
+        .shopping-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: none;
+            border: 4px solid darkblue; /* 边框加粗 */
+            color: darkblue;
+            font-weight: bold;
+            padding: 20px 40px; /* 原来的两倍 */
+            font-size: 3em; /* 文本放大3倍 */
+            cursor: pointer;
+            transition: font-size 0.3s, background 0.3s, color 0.3s;
+        }
+
+        .shopping-btn:hover {
+            font-size: 6em; /* 鼠标放上去时文本放大一倍 */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%; /* 网页的一半 */
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 10px;
+            aspect-ratio: 4 / 3; /* 4:3比例 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: gray;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: red;
+        }
+
+        .buy-btn {
+            display: block;
+            margin: 20px auto;
+            background: yellow;
+            border: none;
+            color: black;
+            padding: 20px 40px; /* 原来的两倍 */
+            font-size: 2em; /* 文本放大2倍 */
+            font-weight: bold; /* 文本加粗 */
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .buy-btn:hover {
+            background: lightblue; /* 鼠标放上去时背景颜色变为淡蓝色 */
+        }
+
+        .modal-image-container {
+            position: relative;
+            width: 100%;
+            height: 60%; /* 上半部分高度 */
+            overflow: hidden;
+            border-radius: 10px; /* 圆角边框 */
+        }
+
+        .modal-image {
+            width: 50%; /* 缩小为原来的一半 */
+            height: 50%; /* 缩小为原来的一半 */
+            object-fit: contain; /* 确保图片完整显示 */
+            border-radius: 10px; /* 圆角边框 */
+        }
+
+        .modal-text-container {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .modal-arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 4em; /* 扩大两倍 */
+            color: yellow;
+            cursor: pointer;
+            transition: transform 0.3s; /* 平滑过渡效果 */
+        }
+
+        .modal-arrow-btn:hover {
+            transform: translateY(-50%) scale(1.5); /* 鼠标放上去时扩大1倍 */
+        }
+
+        #modal-prevBtn {
+            left: 10px;
+        }
+
+        #modal-nextBtn {
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upper-section">
+            <div class="image-container">
+                <img id="image" src="images/ys.png" alt="图片1">
+            </div>
+            <button class="shopping-btn">进入商铺</button>
+        </div>
+        <div class="lower-section">
+            <!-- 下区域内容 -->
+        </div>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <div class="modal-image-container">
+                <button id="modal-prevBtn" class="modal-arrow-btn">&#171;</button>
+                <img id="modal-image" src="images/gzljx.jpg" alt="图片1">
+                <button id="modal-nextBtn" class="modal-arrow-btn">&#187;</button>
+            </div>
+            <div class="modal-text-container" id="modal-text-container">
+                <p id="modal-text">图片1</p>
+            </div>
+            <button class="buy-btn" id="buyBtn">购买</button>
+        </div>
+    </div>
+
+    <script>
+        const images = [
+            'images/gzljx.jpg',
+            'images/gzljy.jpg',
+            'images/ysx.jpg',
+            'images/ysy.jpg'
+        ];
+
+        const texts = [
+            '每一款钥匙扣都倾注了创作者的匠心，采用高品质亚克力材质，通透澄澈，仿若水晶般纯净，将角色的神韵完美封存其中。印刷工艺更是一绝，色彩明艳且持久不褪色，从佩可莉姆元气满满的灿烂笑容，到凯露那傲娇又可爱的小表情，再到可可萝温柔甜美的侧颜，发丝的细腻纹理、服饰的精致褶皱，无一不是用心之作，令人爱不释手。',
+            '无论是追求个性、彰显身份，还是送礼，都是极佳选择。特别适合作为礼物，既独特又有意义。每一款钥匙扣都有其独特的魅力和故事。',
+            '为了最大程度还原角色形象，设计团队通过多次打样和修正，最终呈现出最令人满意的作品。每一个细节都精雕细琢，务求带给你最完美的体验。',
+            '无论是挂在包上、钥匙上，还是车上，这款钥匙扣都能为你的日常生活增添一抹亮色。每次看到它，都会让你心情愉悦，仿佛角色就在身边陪伴。'
+        ];
+
+        const shoppingBtn = document.querySelector('.shopping-btn');
+        const modal = document.getElementById('myModal');
+        const closeBtn = document.getElementById('closeBtn');
+        const buyBtn = document.getElementById('buyBtn');
+        const modalImage = document.getElementById('modal-image');
+        const modalText = document.getElementById('modal-text');
+        const prevBtn = document.getElementById('modal-prevBtn');
+        const nextBtn = document.getElementById('modal-nextBtn');
+
+        let currentIndex = 0;
+
+        function openModal() {
+            modal.style.display = 'block';
+            modalImage.src = images[currentIndex];
+            modalText.textContent = texts[currentIndex];
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function updateModal() {
+            modalImage.src = images[currentIndex];
+            modalText.textContent = texts[currentIndex];
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateModal();
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateModal();
+        }
+
+        shoppingBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        buyBtn.addEventListener('click', () => alert('感谢购买！'));
+        nextBtn.addEventListener('click', nextImage);
+        prevBtn.addEventListener('click', prevImage);
+    </script>
+</body>
+</html>
